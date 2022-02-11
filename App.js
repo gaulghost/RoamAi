@@ -10,6 +10,7 @@
  import StartPage from './components/CheckLocationEnabled';
  import RoamCallElement from './components/roamCallNative';
  import ModalPopUp from './components/ModalPopUp';
+ import RealTimeGeoLocation from './components/RealTimeGeoLocation';
  
  import {
    SafeAreaView,
@@ -27,10 +28,8 @@
  const App = () => {
    return(
      <ScrollView style = {styles.container}>
-      {/* <Text>Hi Hello this side Pradhuman</Text> */}
        <StartPage/>
-       {/* <ModalPopUp text = "You have crossed past the GeoFence you had made" visible = "true"/> */}
-       {/* <RoamCallElement/> */}
+       {/* <RealTimeGeoLocation/> */}
      </ScrollView>
    );
  };
@@ -39,10 +38,6 @@
    container: {
      flex : 1,
      backgroundColor: '#ececec'
-   },
-   baseStyling: {
-     fontSize : 70,
-     color: "#000"
    }
  });
  

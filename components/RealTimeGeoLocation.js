@@ -1,14 +1,25 @@
 import React, {useState, useEffect} from 'react';
-import { AppRegistry, StyleSheet, Text, View, Dimensions } from 'react-native';
-import MapView from 'react-native-maps';
-
+import { AppRegistry, TextInput, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Marker, Circle } from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
+import ModalPopUp from './ModalPopUp';
 
 
 const RealTimeGeoLocation = (props) => {
 
+    const [lats, setLats] = useState(28)
+    const [longs, setLongs] = useState(77)
+    const [geoFenceLat, setGeoFenceLat] = useState()
+    const [geoFenceLong, setGeoFenceLong] = useState()
+    const [radius, setRadius] = useState("50")
+    const [isInside, setIsInside] = useState(true)
+    const makeFence = (props) => {
+        setLocation(props);
+        setGeoFenceLong(longs);
+        setGeoFenceLat(lats);
+    }
+
     const {width, height} = Dimensions.get('window')
-    const SCREEN_HEIGHT = height
-    const SCREEN_WIDTH = width
     const ASPECT_RATIO = width / height
     const LATITUDE_DELTA = 0.0922
     const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
@@ -16,8 +27,8 @@ const RealTimeGeoLocation = (props) => {
     const [initialPosition, setInitialPosition] = useState({
         latitude: 28,
         longitude: 77,
-        longitudeDelta: 0,
-        latitudeDelta: 0
+        longitudeDelta: 0.0922,
+        latitudeDelta: 0.0477
     })
 
     const [markerPosition, setMarkerPosition] = useState({
@@ -27,16 +38,27 @@ const RealTimeGeoLocation = (props) => {
 
     // watchID: ?number = null
     // watchId: number | null = null
-    var watchID = null;
+    let watchID = null;
 
-    // useMemo(() => {
-    //     // componentWillMount events
-    // },[]);
-    useEffect(() => {
-        // componentDidMount events
-        navigator.geolocation.getCurrentPosition((position) => {
+    const setLocation = (props) => {
+        Geolocation.getCurrentPosition((position) => {
             const lat = parseFloat(position.coords.latitude)
             const long = parseFloat(position.coords.longitude)
+
+            const distance = Math.sqrt(Math.pow(geoFenceLat - lat, 2) + Math.pow(geoFenceLong - long,2))
+            if(distance > radius && isInside == true){
+                setIsInside(false);
+                alert(JSON.stringify("You have crossed past the GeoFence you had made"));
+            }
+            else if(distance <= radius && isInside == false){
+                setIsInside(true);
+                alert(JSON.stringify("You have entered the GeoFence Area"));
+            }
+
+            setLats(lat)
+            setLongs(long)
+
+            console.log(position)
 
             const initialRegion = {
                 latitude: lat,
@@ -47,14 +69,17 @@ const RealTimeGeoLocation = (props) => {
 
             setInitialPosition(initialRegion)
             setMarkerPosition({latitude: lat, longitude: long})
-        }, (error) => alert(JSON.stringify(error)),
+        }, (error) => {
+            // alert(JSON.stringify(error));
+            props.setLocationFound(false);
+        },
         {
             enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge:1000
+            timeout: 5000,
+            maximumAge:2000
         })
 
-        watchID = navigator.geolocation.watchPosition((position) => {
+        watchID = Geolocation.watchPosition((position) => {
             const lat = parseFloat(position.coords.latitude)
             const long = parseFloat(position.coords.longitude)
 
@@ -67,104 +92,47 @@ const RealTimeGeoLocation = (props) => {
             setInitialPosition(lastRegion)
             setMarkerPosition({latitude: lat, longitude: long})
         })
+    }
+
+    useEffect(() => {
+        // componentDidMount events
+        let isMounted = true;  
+        setLocation(props);
         return () => {
         // componentWillUnmount events
-        navigator.geolocation.clearWatch(this.watchID)
+        Geolocation.clearWatch(watchID)
+        isMounted = false
         }
     }, []);
 
-    // componentDidMount() {
-        
-    // }
-
-    // componentWillUnmount() {
-        
-    // }
-
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //       latitude: LATITUDE,
-    //       longitude: LONGITUDE,
-    //       routeCoordinates: [],
-    //       distanceTravelled: 0,
-    //       prevLatLng: {},
-    //       coordinate: new AnimatedRegion({
-    //        latitude: LATITUDE,
-    //        longitude: LONGITUDE
-    //       })
-    //     };
-    //   }
-
-    //   componentDidMount() {
-    //     this.watchID = navigator.geolocation.watchPosition(
-    //       position => {
-    //         const { coordinate, routeCoordinates, distanceTravelled } =   this.state;
-    //         const { latitude, longitude } = position.coords;
-            
-    //         const newCoordinate = {
-    //           latitude,
-    //           longitude
-    //         };
-    //         if (Platform.OS === "android") {
-    //           if (this.marker) {
-    //             this.marker._component.animateMarkerToCoordinate(
-    //               newCoordinate,
-    //               500
-    //             );
-    //            }
-    //          } else {
-    //            coordinate.timing(newCoordinate).start();
-    //          }
-    //          this.setState({
-    //            latitude,
-    //            longitude,
-    //            routeCoordinates: routeCoordinates.concat([newCoordinate]),
-    //            distanceTravelled:
-    //            distanceTravelled + this.calcDistance(newCoordinate),
-    //            prevLatLng: newCoordinate
-    //          });
-    //        },
-    //        error => console.log(error),
-    //        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    //     );
-    //   }
-
-    //   if (Platform.OS === "android") {
-    //     if (this.marker) {
-    //     this.marker._component.animateMarkerToCoordinate(
-    //       newCoordinate,
-    //       500
-    //      );
-    //     }
-    //   } else {
-    //     coordinate.timing(newCoordinate).start();
-    //   }
-
-    //   this.setState({
-    //     latitude,
-    //     longitude,
-    //     routeCoordinates: routeCoordinates.concat([newCoordinate]),
-    //     distanceTravelled: distanceTravelled + this.calcDistance(newCoordinate),
-    //     prevLatLng: newCoordinate
-    //   });
-
-    //   getMapRegion = () => ({
-    //     latitude: this.state.latitude,
-    //     longitude: this.state.longitude,
-    //     latitudeDelta: LATITUDE_DELTA,
-    //     longitudeDelta: LONGITUDE_DELTA
-    //   });
-
     return (
         <View style = {styles.container}>
-            <MapView style={styles.map} initialRegion = {initialPosition}>
+            <MapView style={styles.map} region = {initialPosition} provider={PROVIDER_GOOGLE}>
                 <MapView.Marker coordinate = {markerPosition}>
                     <View style = {styles.radius}>
                         <View style = {styles.marker}></View>
                     </View>
                 </MapView.Marker>
+                <MapView.Circle
+                    center = { {latitude: (isNaN(geoFenceLat))? lats : geoFenceLat, longitude: (isNaN(geoFenceLong))? longs : geoFenceLong} }
+                    radius = { isNaN(parseInt(radius))? 50 : parseInt(radius)}
+                    strokeWidth = { 1 }
+                    strokeColor = { '#1a66ff' }
+                    fillColor = { 'rgba(230,238,255,0.5)' }
+                />
             </MapView>
+            <View style = {styles.buttonContainer}>
+                <TouchableOpacity style = {styles.buttonStyle} onPress = {() => makeFence(props)}><Text style = {styles.textCentering}>GeoFence Around Me</Text></TouchableOpacity>
+                <View style = {styles.buttonStyle}>
+                    <TextInput
+                        style={styles.radiusInput}
+                        onChangeText={setRadius}
+                        placeholder="Fence Radius"
+                        keyboardType="numeric"
+                    />
+                </View>
+                <TouchableOpacity style = {styles.buttonStyle} onPress = {() => setLocation(props)}><Text style = {styles.textCentering}>Relocate</Text></TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -174,14 +142,18 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F5FCFF'
+        backgroundColor: '#F5FCFF',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
     },
     map: {
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        position: 'absolute'
+        // left: 0,
+        // right: 0,
+        // top: 0,
+        // bottom: 0,
+        // position: 'absolute',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height - 80,
     },
     radius:{
         height: 50,
@@ -202,6 +174,30 @@ const styles = StyleSheet.create({
         borderRadius: 20 / 2,
         overflow: 'hidden',
         backgroundColor: '#007AFF'
+    },
+    buttonContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        height: 60,
+        width: Dimensions.get('window').width,
+    },
+    buttonStyle: {
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 5,
+        paddingBottom: 30,
+        width: Dimensions.get('window').width / 3,
+        borderWidth: 0.1,
+        borderColor: '#000'
+    },
+    textCentering: {
+        textAlign: 'center',
+        borderColor: '#000',
+        borderWidth: 0.1,
+    },
+    radiusInput: {
+        width: (Dimensions.get('window').width / 3) - 10
     }
 })
 
