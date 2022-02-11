@@ -157,24 +157,54 @@ const RealTimeGeoLocation = (props) => {
     //   });
 
     return (
-        <MapView
-            style={styles.map}
-            showUserLocation
-            followUserLocation
-            loadingEnabled
-            region={this.getMapRegion()}
-            >
-            <Polyline coordinates={this.state.routeCoordinates} strokeWidth={5} />
-            <Marker.Animated
-                ref={marker => {
-                this.marker = marker;
-                }}
-                coordinate={this.state.coordinate}
-            />
-        </MapView>
+        <View style = {styles.container}>
+            <MapView style={styles.map} initialRegion = {initialPosition}>
+                <MapView.Marker coordinate = {markerPosition}>
+                    <View style = {styles.radius}>
+                        <View style = {styles.marker}></View>
+                    </View>
+                </MapView.Marker>
+            </MapView>
+        </View>
     );
 }
  
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF'
+    },
+    map: {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        position: 'absolute'
+    },
+    radius:{
+        height: 50,
+        width: 50,
+        borderRadius: 50 / 2,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(0,122,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(0, 112, 255, 0.3)',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    marker: {
+        height: 20,
+        width: 20,
+        borderWidth: 3,
+        borderColor: 'white',
+        borderRadius: 20 / 2,
+        overflow: 'hidden',
+        backgroundColor: '#007AFF'
+    }
+})
+
 export default RealTimeGeoLocation;
 
 
