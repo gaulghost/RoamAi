@@ -36,14 +36,12 @@ const ErrorPrompt = (props) => {
 
 const styles = StyleSheet.create({
     errorBackground:{
-        backgroundColor: '#7f7f7f',
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
     },
     errorContainer: {
-        backgroundColor: '#e5e5e5',
-        padding: 15
+        padding: 15,
     },
     baseFont: {
         padding: 15,

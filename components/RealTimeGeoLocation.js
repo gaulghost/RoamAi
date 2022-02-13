@@ -28,7 +28,7 @@ const RealTimeGeoLocation = (props) => {
         latitude: 28,
         longitude: 77,
         longitudeDelta: 0.0922,
-        latitudeDelta: 0.0477
+        latitudeDelta: 0.0421
     })
 
     const [markerPosition, setMarkerPosition] = useState({
@@ -45,7 +45,11 @@ const RealTimeGeoLocation = (props) => {
             const lat = parseFloat(position.coords.latitude)
             const long = parseFloat(position.coords.longitude)
 
-            const distance = Math.sqrt(Math.pow(geoFenceLat - lat, 2) + Math.pow(geoFenceLong - long,2))
+            const distance = getDistance(
+                { latitude: geoFenceLat, longitude: geoFenceLong },
+                { latitude: lat, longitude: long }
+            );
+            
             if(distance > radius && isInside == true){
                 setIsInside(false);
                 alert(JSON.stringify("You have crossed past the GeoFence you had made"));
@@ -107,7 +111,7 @@ const RealTimeGeoLocation = (props) => {
 
     return (
         <View style = {styles.container}>
-            <MapView style={styles.map} region = {initialPosition} provider={PROVIDER_GOOGLE}>
+            <MapView style={styles.map} initialRegion = {initialPosition} provider={PROVIDER_GOOGLE}>
                 <MapView.Marker coordinate = {markerPosition}>
                     <View style = {styles.radius}>
                         <View style = {styles.marker}></View>
