@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import { AppRegistry, TextInput, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import { AppRegistry, TextInput, StyleSheet, Text, View, Dimensions, TouchableOpacity, Image } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import ModalPopUp from './ModalPopUp';
 import {getDistance} from 'geolib';
+import pin1 from '../assets/images/pin1.png';
 
 
 const RealTimeGeoLocation = (props) => {
@@ -19,7 +20,7 @@ const RealTimeGeoLocation = (props) => {
         setGeoFenceLong(longs);
         setGeoFenceLat(lats);
     }
-
+    const pinuri = Image.resolveAssetSource(pin1).uri
     const {width, height} = Dimensions.get('window')
     const ASPECT_RATIO = width / height
     const LATITUDE_DELTA = 0.0922
@@ -115,9 +116,10 @@ const RealTimeGeoLocation = (props) => {
         <View style = {styles.container}>
             <MapView style={styles.map} initialRegion = {initialPosition} provider={PROVIDER_GOOGLE}>
                 <MapView.Marker coordinate = {markerPosition}>
-                    <View style = {styles.radius}>
+                    {/* <View style = {styles.radius}>
                         <View style = {styles.marker}></View>
-                    </View>
+                    </View> */}
+                    <Image source={{uri: pinuri}} style = {styles.styledArrow} />
                 </MapView.Marker>
                 <MapView.Circle
                     center = { {latitude: (isNaN(geoFenceLat))? lats : geoFenceLat, longitude: (isNaN(geoFenceLong))? longs : geoFenceLong} }
@@ -204,6 +206,10 @@ const styles = StyleSheet.create({
     },
     radiusInput: {
         width: (Dimensions.get('window').width / 3) - 10
+    },
+    styledArrow: {
+        height: 30,
+        width: 30
     }
 })
 
