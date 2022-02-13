@@ -3,14 +3,15 @@ import { AppRegistry, TextInput, StyleSheet, Text, View, Dimensions, TouchableOp
 import MapView, { PROVIDER_GOOGLE, Marker, Circle } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import ModalPopUp from './ModalPopUp';
+import {getDistance} from 'geolib';
 
 
 const RealTimeGeoLocation = (props) => {
 
     const [lats, setLats] = useState(28)
     const [longs, setLongs] = useState(77)
-    const [geoFenceLat, setGeoFenceLat] = useState()
-    const [geoFenceLong, setGeoFenceLong] = useState()
+    const [geoFenceLat, setGeoFenceLat] = useState(28)
+    const [geoFenceLong, setGeoFenceLong] = useState(77)
     const [radius, setRadius] = useState("50")
     const [isInside, setIsInside] = useState(true)
     const makeFence = (props) => {
@@ -49,12 +50,12 @@ const RealTimeGeoLocation = (props) => {
                 { latitude: geoFenceLat, longitude: geoFenceLong },
                 { latitude: lat, longitude: long }
             );
-            
-            if(distance > radius && isInside == true){
+
+            if(parseInt(distance) > parseInt(radius) && isInside == true){
                 setIsInside(false);
                 alert(JSON.stringify("You have crossed past the GeoFence you had made"));
             }
-            else if(distance <= radius && isInside == false){
+            else if(parseInt(distance) <= parseInt(radius) && isInside == false){
                 setIsInside(true);
                 alert(JSON.stringify("You have entered the GeoFence Area"));
             }
@@ -63,6 +64,7 @@ const RealTimeGeoLocation = (props) => {
             setLongs(long)
 
             console.log(position)
+            console.log(distance)
 
             const initialRegion = {
                 latitude: lat,
